@@ -19,10 +19,10 @@ from django.contrib.admin.templatetags.admin_static import static
 csrf_protect_m = method_decorator(csrf_protect)
 
 
-class AdminErrorList(forms.utils.ErrorList):
+class AdminErrorList(helpers.AdminErrorList):
     """Store errors for the form/formsets in an add/change view."""
     def __init__(self, form, inline_formsets):
-        super().__init__()
+        super().__init__(form, inline_formsets)
 
         if form.is_bound:
             if hasattr(form, 'nested_formsets'):
@@ -30,16 +30,11 @@ class AdminErrorList(forms.utils.ErrorList):
 
     def add_inline_formsets(self, inline_formsets):
         for inline_formset in inline_formsets:
-            self.extend(inline_formset.non_form_errors())
-            for errors_in_inline_form in inline_formset.errors:
-                self.extend(errors_in_inline_form.values())
             for form in inline_formset.forms:
                 for formset in form.nested_formsets:
                     for errors_in_inline_form in formset.formset.errors:
                         self.extend(errors_in_inline_form.values())
 
-            if hasattr(inline_formset, 'nested_formsets'):
-                self.add_inline_formsets(inline_formset.nested_formsets)
 
 
 class NestedModelAdmin(admin.ModelAdmin):
